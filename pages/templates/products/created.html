@@ -1,0 +1,16 @@
+{%extends 'pages/base.html'%}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<div class='alert alert-success text-center'>
+    Product Created Successfully!
+</div>
+
+{%if name and price%}
+    <div class='text-center'>
+        <p><strong>Product Name:</strong> {{name}}</p>
+        <p><strong>Product Price:</strong> ${{price}}</p>
+    </div>
+{%endif%}
+{% endblock %}
