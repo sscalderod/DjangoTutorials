@@ -37,6 +37,7 @@ class contactPageView(TemplateView):
         })
         return context
 
+
 class ProductIndexView(View):
     template_name='products/index.html'
     
@@ -48,30 +49,34 @@ class ProductIndexView(View):
         
         return render(request, self.template_name, viewData)
     
-class ProductShowView(View):
-    template_name='products/show.html'
+class ProductShowView(View): 
+    template_name = 'products/show.html' 
+ 
+ 
+    def get(self, request, id): 
+ 
+        # Check if product id is valid 
+        try: 
+            product_id = int(id) 
+            if product_id < 1: 
+                raise ValueError("Product id must be 1 or greater") 
+            product = get_object_or_404(Product, pk=product_id) 
+        except (ValueError, IndexError): 
+            # If the product id is not valid, redirect to the home page 
+            return HttpResponseRedirect(reverse('home')) 
+         
+        viewData = {} 
+        product = get_object_or_404(Product, pk=product_id) 
+        viewData["title"] = product.name + " - Online Store" 
+        viewData["subtitle"] =  product.name + " - Product information" 
+        viewData["product"] = product 
+ 
+        return render(request, self.template_name, viewData) 
     
-    def get(self, request, id):
-        try:
-            product_id=int(id)
-            if product_id<1:
-                raise ValueError("Product ID must be 1 or greater.")
-            product = get_object_or_404(Product, pk=product_id)
-        except (ValueError, IndexError):
-            return HttpResponseRedirect(reverse('home'))
-        
-        viewData = {}
-        product = get_object_or_404(Product, pk=id)
-        viewData['title'] = product.name + ' - Online Store'
-        viewData['subtitle'] = product.name + ' - Product Information'
-        viewData['product'] = product
-
-        return render(request, self.template_name, viewData)
-    
-class ProductForm(forms.Form):
-    name=forms.CharField(required=True)
-    price=forms.FloatField(required=True)
-    
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'price']
     def clean_price(self):
         price = self.cleaned_data.get('price')
         if price is None or price <= 0:
@@ -88,20 +93,33 @@ class ProductCreateView(View):
         viewData['form'] = form
         return render(request, self.template_name, viewData)
     
-    def post(self, request):
-        form = ProductForm(request.POST)
-        
-        if form.is_valid():
-            viewData = {}
-            viewData['title'] = 'Product Created'
-            viewData['subtitle'] = form.cleaned_data['name']
-            viewData['price'] = form.cleaned_data['price']
-            return render(request, 'products/created.html', viewData)
-        else:
-            viewData = {}
-            viewData['title'] = 'Create Product'
-            viewData['form'] = form
+    def post(self, request): 
+        form = ProductForm(request.POST) 
+        if form.is_valid(): 
+            product = form.save() 
+            request.session['created_product'] = {
+                'name': product.name,
+                'price': product.price,
+            }
+            return redirect('product-created')  
+        else: 
+            viewData = {} 
+            viewData["title"] = "Create product" 
+            viewData["form"] = form 
             return render(request, self.template_name, viewData)
+
+
+class ProductCreatedView(View):
+    template_name = 'products/created.html'
+
+    def get(self, request):
+        created_product = request.session.pop('created_product', None)
+        viewData = {
+            'title': 'Product Created',
+            'name': created_product['name'] if created_product else None,
+            'price': created_product['price'] if created_product else None,
+        }
+        return render(request, self.template_name, viewData)
 
 class ProductListView(ListView): 
     model = Product 
@@ -112,5 +130,4 @@ class ProductListView(ListView):
         context = super().get_context_data(**kwargs) 
         context['title'] = 'Products - Online Store' 
         context['subtitle'] = 'List of products' 
-        return context 
-        
+        return context   
