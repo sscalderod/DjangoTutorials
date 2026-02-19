@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product
+from .models import Product, Comment
 
 
 class homePageView(TemplateView):
@@ -70,6 +70,7 @@ class ProductShowView(View):
         viewData["title"] = product.name + " - Online Store" 
         viewData["subtitle"] =  product.name + " - Product information" 
         viewData["product"] = product 
+        viewData["comments"] = Comment.objects.filter(product=product)
  
         return render(request, self.template_name, viewData) 
     
