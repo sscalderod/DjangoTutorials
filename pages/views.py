@@ -6,7 +6,7 @@ from django.urls import reverse
 from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Comment
-
+from pages.utils import ImageLocalStorage
 
 class homePageView(TemplateView):
     template_name = 'pages/home.html'
@@ -210,4 +210,18 @@ class ProductListView(ListView):
         context['subtitle'] = 'List of products' 
         return context   
 
+class ImageNoDIView(View):
+    template_name='imagesnotdi/index.html'
+    
+    def get(self, request):
+        image_url= request.session.get('image_url', '')
+        
+        return render(request, self.template_name, {'image_url': image_url})
+    
+    def post(self, request):
+        image_storage = ImageLocalStorage()
+        image_url = image_storage.store(request)
+        request.session['image_url'] = image_url
+        
+        return redirect('imagenotdi_index')
 
