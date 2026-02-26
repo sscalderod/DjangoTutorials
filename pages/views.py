@@ -108,6 +108,39 @@ class ProductCreateView(View):
             viewData["title"] = "Create product" 
             viewData["form"] = form 
             return render(request, self.template_name, viewData)
+
+
+def ImageViewFactory(image_storage):
+    class ImageView(View):
+        def get(self, request):
+            return render(request, "images/index.html")
+
+        def post(self, request):
+            # Si existe implementación custom (tuya), úsala
+            if hasattr(image_storage, "store"):
+                image_url = image_storage.store(request)
+                return render(request, "images/index.html", {"image_url": image_url})
+
+            # Compatibilidad con FileSystemStorage (default_storage)
+            uploaded_file = request.FILES.get("image")
+            if not uploaded_file and request.FILES:
+                uploaded_file = next(iter(request.FILES.values()))
+
+            if not uploaded_file:
+                return render(
+                    request,
+                    "images/index.html",
+                    {"error": "No file was uploaded."},
+                    status=400,
+                )
+
+            saved_name = image_storage.save(uploaded_file.name, uploaded_file)
+            image_url = image_storage.url(saved_name)
+
+            return render(request, "images/index.html", {"image_url": image_url})
+
+    return ImageView
+
         
         
 class CartView(View):
@@ -176,4 +209,5 @@ class ProductListView(ListView):
         context['title'] = 'Products - Online Store' 
         context['subtitle'] = 'List of products' 
         return context   
+
 
