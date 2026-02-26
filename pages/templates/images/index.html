@@ -10,7 +10,7 @@
      <div class="card">
        <div class="card-header">Upload image</div>
        <div class="card-body">
-       <form method="post" action="{% url 'image_save' %}" enctype="multipart/form-data">
+       <gform method="post" action="{% url 'image_save' %}" enctype="multipart/form-data">
        {% csrf_token %}
          <div class="form-group">
            <label>Image:</label>
