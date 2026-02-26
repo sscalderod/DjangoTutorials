@@ -8,12 +8,14 @@ from .views import (
     ProductIndexView,
     ProductShowView,
     ProductCreateView,
+    ProductCreatedView,
+    CartView,
+    CartRemoveAllView,
     ImageViewFactory,
+    ImageNoDIView,
 )
 
 ImageView = ImageViewFactory(default_storage)
-
-from .views import homePageView, aboutPageView, contactPageView, ProductIndexView, ProductShowView, ProductCreateView, ProductCreatedView, CartView, CartRemoveAllView
 
 
 urlpatterns = [
@@ -32,4 +34,6 @@ urlpatterns = [
     path('cart/add/<str:product_id>', CartView.as_view(), name='cart_add'),
     path('cart/removeAll', CartRemoveAllView.as_view(), name='cart_removeAll'),
 
+    path('imagenotdi/', ImageNoDIView.as_view(), name='imagenotdi_index'),
+    path('imagenotdi/save', ImageNoDIView.as_view(), name='imagenotdi_save'),
 ]

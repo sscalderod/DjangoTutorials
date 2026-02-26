@@ -5,7 +5,12 @@ from .interfaces import ImageStorage
 class ImageLocalStorage(ImageStorage):
     def store(self, request: HttpRequest):
         profile_image = request.FILES.get('profile_image', None)
-        if profile_image:
-            file_name = default_storage.save('uploaded_images/' + profile_image.name, profile_image)
+        if not profile_image:
+            return ""
+
+        file_name = default_storage.save(
+            'uploaded_images/' + profile_image.name,
+            profile_image
+        )
         return default_storage.url(file_name)
     
