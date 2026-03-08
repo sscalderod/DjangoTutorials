@@ -8,6 +8,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Comment
 from pages.utils import ImageLocalStorage
 
+from rest_framework import generics
+from .models import Product
+from .serializers import ProductSerializer
+
+class ProductListAPI(generics.ListAPIView):
+    serializer_class = ProductSerializer
+    queryset = Product.objects.all()
+
 class homePageView(TemplateView):
     template_name = 'pages/home.html'
     
@@ -224,4 +232,3 @@ class ImageNoDIView(View):
         request.session['image_url'] = image_url
         
         return redirect('imagenotdi_index')
-
