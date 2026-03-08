@@ -25,6 +25,8 @@ urlpatterns = [
 
     path("", include('pages.urls')),
     path("accounts/", include("accounts.urls")),
+    
+    path('api/', include('pages.api_urls')),
 ]
 
 if settings.DEBUG:
